@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Client-Acquisition System</title>
+<style>
+  :root{
+    --maroon:#5C1220; --card:#E9E7E4; --card-line:#dcd8d3;
+    --bg:#ffffff; --text:#2B2B2B; --sub:#6B6B6B; --good:#3d7a52;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+    box-sizing:border-box;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --bg:#1c1517; --card:#2a2325; --card-line:#3a3234; --text:#f1e9ec; --sub:#b8abb0; }
+  }
+  :root[data-theme="dark"]{ --bg:#1c1517; --card:#2a2325; --card-line:#3a3234; --text:#f1e9ec; --sub:#b8abb0; }
+  html{scroll-padding-top:env(safe-area-inset-top,0px); scroll-behavior:smooth;}
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    min-height:100%;
+  }
+  .serif{font-family:Georgia,"Times New Roman",serif;}
+
+  /* ---- hero ---- */
+  header.hero{
+    background:var(--maroon); color:#fff; padding:28px 20px 26px;
+    padding-top:calc(28px + env(safe-area-inset-top,0px)); text-align:center;
+  }
+  header.hero .eyebrow{font-size:11px; letter-spacing:.14em; text-transform:uppercase; opacity:.8; font-weight:700;}
+  header.hero h1{margin:8px 0 10px; font-size:24px; line-height:1.3;}
+  header.hero p{margin:0 auto; font-size:14px; opacity:.85; max-width:480px; line-height:1.5;}
+
+  main{padding:26px 16px 8px; max-width:640px; margin:0 auto;}
+  .section-label{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--sub); font-weight:700; margin:26px 0 10px 2px;}
+  .section-label:first-child{margin-top:0;}
+
+  /* ---- video cards ---- */
+  .video-card{background:var(--card); border:1px solid var(--card-line); border-radius:14px; overflow:hidden; margin-bottom:16px;}
+  .video-card .frame{position:relative; padding-top:56.25%; background:#000;}
+  .video-card .frame iframe{position:absolute; top:0; left:0; width:100%; height:100%; border:0;}
+  .video-card .meta{padding:12px 14px;}
+  .video-card .num{
+    display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:24px; padding:0 5px;
+    border-radius:50%; background:var(--maroon); color:#fff; font-size:11px; font-weight:700; margin-right:8px; vertical-align:middle;
+  }
+  .video-card .title{font-size:14.5px; font-weight:700; vertical-align:middle;}
+  .video-card .sub{font-size:12.5px; color:var(--sub); margin-top:4px; margin-left:32px;}
+
+  /* ---- cta into checklist ---- */
+  .cta{background:var(--maroon); color:#fff; border-radius:14px; padding:22px 20px; text-align:center; margin-top:10px;}
+  .cta h2{margin:0 0 8px; font-size:18px;}
+  .cta p{margin:0 0 16px; font-size:13.5px; opacity:.9; line-height:1.5;}
+  .cta button{
+    display:inline-block; background:#fff; color:var(--maroon); font-weight:700; font-size:14px;
+    padding:12px 22px; border-radius:8px; border:none; cursor:pointer; font-family:inherit;
+  }
+
+  /* ---- checklist section ---- */
+  #checklist{border-top:1px solid var(--card-line); margin-top:34px;}
+  .checklist-head{background:var(--maroon); color:#fff; padding:22px 20px 16px; margin:0 -16px;}
+  .checklist-head .eyebrow{font-size:11px; letter-spacing:.12em; text-transform:uppercase; opacity:.8; font-weight:700;}
+  .checklist-head h2{margin:4px 0 10px; font-size:21px;}
+  .progress-wrap{background:rgba(255,255,255,.2); border-radius:99px; height:8px; overflow:hidden;}
+  .progress-fill{background:#fff; height:100%; border-radius:99px; transition:width .3s ease;}
+  .progress-label{font-size:12px; opacity:.85; margin-top:6px;}
+
+  nav.tabs{display:flex; overflow-x:auto; gap:8px; padding:14px 0; margin:0 -16px 0; padding-left:16px; padding-right:16px; -webkit-overflow-scrolling:touch;}
+  nav.tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto; padding:9px 14px; border-radius:99px; border:1px solid var(--card-line);
+    background:var(--card); color:var(--text); font-size:13px; font-weight:700; cursor:pointer;
+    white-space:nowrap; display:flex; align-items:center; gap:6px;
+  }
+  .tab.active{background:var(--maroon); border-color:var(--maroon); color:#fff;}
+  .tab .dot{width:7px; height:7px; border-radius:50%; background:var(--good); flex:0 0 auto;}
+  .tab.active .dot{background:#c9f2d6;}
+  .tab .dot.empty{background:transparent; border:1.5px solid var(--sub);}
+
+  .phase-head{margin:10px 2px 14px;}
+  .phase-head .num{
+    display:inline-flex; align-items:center; justify-content:center; min-width:28px; height:28px; padding:0 5px;
+    border-radius:50%; background:var(--maroon); color:#fff; font-size:12px; font-weight:700; margin-right:8px;
+  }
+  .phase-head h3{display:inline; font-size:19px; vertical-align:middle;}
+
+  .item{background:var(--card); border:1px solid var(--card-line); border-radius:10px; padding:14px; margin-bottom:10px;}
+  .item .row{display:flex; gap:12px; align-items:flex-start; cursor:pointer;}
+  .item input{width:19px; height:19px; margin-top:2px; accent-color:var(--maroon); flex:0 0 auto; cursor:pointer;}
+  .item .txt{flex:1;}
+  .item .txt .label{font-size:14.5px; line-height:1.45;}
+  .item.done .label{color:var(--sub); text-decoration:line-through;}
+  .note-toggle{
+    margin:8px 0 0 31px; font-size:12px; color:var(--maroon); font-weight:700; cursor:pointer;
+    display:inline-block; background:none; border:none; padding:0; font-family:inherit;
+  }
+  .note-box{margin:10px 0 0 31px;}
+  .note-box textarea{
+    width:100%; min-height:60px; border:1px solid var(--card-line); border-radius:8px; padding:9px 10px;
+    font-family:inherit; font-size:13.5px; color:var(--text); background:var(--bg); resize:vertical;
+  }
+  .note-box textarea:focus{outline:1.5px solid var(--maroon);}
+
+  .footer-nav{display:flex; justify-content:space-between; gap:10px; margin-top:18px;}
+  .navbtn{
+    flex:1; padding:13px; border-radius:8px; border:1px solid var(--card-line); background:var(--card);
+    color:var(--text); font-size:14px; font-weight:700; cursor:pointer; text-align:center;
+  }
+  .navbtn.primary{background:var(--maroon); border-color:var(--maroon); color:#fff;}
+  .navbtn:disabled{opacity:.4; cursor:default;}
+
+  .loop-note{background:var(--maroon); color:#fff; border-radius:10px; padding:16px; font-size:13.5px; line-height:1.5; margin-top:6px; font-style:italic;}
+  .system-view{background:var(--card); border:1px solid var(--card-line); border-radius:10px; padding:14px; margin-bottom:14px;}
+  .system-view .row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--card-line);}
+  .system-view .row:last-child{border-bottom:none;}
+  .system-view .badge{
+    flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:var(--maroon); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+  }
+  .system-view .name{font-size:13.5px; font-weight:700;}
+  .system-view .sub{font-size:12px; color:var(--sub);}
+
+  .reset-row{text-align:center; margin-top:26px;}
+  .reset-row button{background:none; border:none; color:var(--sub); font-size:12.5px; text-decoration:underline; cursor:pointer;}
+
+  footer.brand{text-align:center; padding:26px 0 30px; color:var(--sub); font-size:11px; letter-spacing:.08em; text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow">Sensation Marketing Agency</div>
+  <h1 class="serif">The Client-Acquisition System</h1>
+  <p>Digital marketing and social media training — turn your social media into a client-generating system.</p>
+</header>
+
+<main>
+  <div class="section-label">Introduction</div>
+  <div class="video-card">
+    <div class="frame"><iframe src="https://www.youtube.com/embed/J4x3hOgrKL8" title="Introduction — Client-Acquisition System" allowfullscreen loading="lazy"></iframe></div>
+    <div class="meta"><span class="title">Client-Acquisition System</span></div>
+  </div>
+
+  <div class="section-label">Modules</div>
+  <div id="videoModules"></div>
+
+  <div class="section-label">Closing</div>
+  <div class="video-card">
+    <div class="frame"><iframe src="https://www.youtube.com/embed/JLs9Jya0Pu4" title="Closing — Implementation" allowfullscreen loading="lazy"></iframe></div>
+    <div class="meta"><span class="title">Implementation</span></div>
+  </div>
+
+  <div class="cta">
+    <h2 class="serif">Watched everything?</h2>
+    <p>Once you've been through all 9 modules, work the Implementation Checklist below for your own business. Your progress and notes stay private to you, on this device.</p>
+    <button onclick="document.getElementById('checklist').scrollIntoView({behavior:'smooth'})">Go to the Implementation Checklist ↓</button>
+  </div>
+
+  <div id="checklist">
+    <div class="checklist-head">
+      <div class="eyebrow">The Client Acquisition System</div>
+      <h2 class="serif">Implementation Checklist</h2>
+      <div class="progress-wrap"><div class="progress-fill" id="overallFill" style="width:0%"></div></div>
+      <div class="progress-label" id="overallLabel">0 of 0 steps complete</div>
+    </div>
+    <nav class="tabs" id="tabs"></nav>
+    <div id="phaseContent"></div>
+    <div class="reset-row"><button id="resetBtn">Reset all progress</button></div>
+  </div>
+</main>
+
+<footer class="brand">Sensation Marketing Agency &middot; Cause We Gatchu</footer>
+
+<script>
+/* ---------------- videos ---------------- */
+const VIDEO_MODULES = [
+  { num: "1", title: "Foundations", sub: "Foundations of digital marketing", id: "HDbsLhLILTo" },
+  { num: "2", title: "Finding & Landing Clients", sub: "Finding and landing clients", id: "nBnaZC7LDyg" },
+  { num: "3", title: "Social Media Strategy", sub: "Social media strategy that converts", id: "zjkjj5oKatI" },
+  { num: "4", title: "Paid Advertising", sub: "Paid advertising and campaigns", id: "VDlrtNvOnPU" },
+  { num: "5A", title: "Building the Offer", sub: "Building the offer", id: "ALnhPACeBIs" },
+  { num: "5B", title: "Executing the Launch", sub: "Executing the launch", id: "PFGpjd-6lQo" },
+  { num: "6", title: "AI-Powered Marketing", sub: "AI-powered marketing and productivity", id: "pyWaUJaSPKk" },
+  { num: "7", title: "Offer Psychology", sub: "Bonus tips — offer psychology", id: "ad2I-EIOxaQ" },
+  { num: "8", title: "Digital Products (Bonus)", sub: "Guide to creating digital products", id: "eCf219WBP4E" }
+];
+const vwrap = document.getElementById('videoModules');
+VIDEO_MODULES.forEach(m => {
+  const card = document.createElement('div');
+  card.className = 'video-card';
+  card.innerHTML =
+    '<div class="frame"><iframe src="https://www.youtube.com/embed/' + m.id + '" title="Module ' + m.num + ' — ' + m.title + '" allowfullscreen loading="lazy"></iframe></div>' +
+    '<div class="meta"><span class="num">' + m.num + '</span><span class="title">' + m.title + '</span><div class="sub">' + m.sub + '</div></div>';
+  vwrap.appendChild(card);
+});
+
+/* ---------------- checklist ---------------- */
+const MODULES = [
+  { num: "1", title: "Foundations", items: [
+    "Write your positioning statement: \u201cI help [X] achieve [Y] through [Z]\u201d",
+    "Identify which of the 3 pillars (Acquisition, Authority, Monetization) is weakest for you",
+    "Audit your profile against the 3-second clarity test"
+  ]},
+  { num: "2", title: "Finding & Landing Clients", items: [
+    "Set up an AI lead tool: Apollo.io, Lusha, or Hunter.io",
+    "Draft a value-first outreach message (audit, insight, or quick win)",
+    "List 3 potential strategic partnership businesses in your space"
+  ]},
+  { num: "3", title: "Social Media Strategy", items: [
+    "Plan 30 days of content across Education / Proof / Offer",
+    "Set up your AI content stack: ChatGPT, Canva, Gemini",
+    "Choose a scheduler (Buffer or Meta Business Suite) and load week 1"
+  ]},
+  { num: "4", title: "Paid Advertising", items: [
+    "Set up Meta Business Suite and link your Instagram (Business/Creator)",
+    "Build your first Sales campaign — audience + budget",
+    "Write ad copy using Hook \u2192 Value \u2192 Proof \u2192 CTA"
+  ]},
+  { num: "5A", title: "Building the Offer", items: [
+    "Package your offer: the problem, the result, the process",
+    "Run it through the \u201cI need this / it'll work / can't miss it\u201d test",
+    "Add a bonus or guarantee to raise perceived value"
+  ]},
+  { num: "5B", title: "Executing the Launch", items: [
+    "Map your 3-month timeline: Foundation \u2192 Audience \u2192 Launch",
+    "Build your 21-day warm-up content plan",
+    "Set a real open date and close date for launch week"
+  ]},
+  { num: "6", title: "AI-Powered Marketing", items: [
+    "Test one AI video tool: HeyGen, Kling AI, Pixverse, or Google Flow",
+    "Automate one task \u2014 lead gen, follow-ups, or scheduling",
+    "Set up a CRM (Zoho or HubSpot) to track every lead"
+  ]},
+  { num: "7", title: "Offer Psychology", items: [
+    "Rewrite your top offer headline using Pain > Pleasure",
+    "Add one urgency element (real deadline or bonus expiry)",
+    "Add 2 pieces of social proof to your content"
+  ]},
+  { num: "8", title: "Digital Products (Bonus)", items: [
+    "Choose one product idea based on demand, not guesswork",
+    "Structure it into modules, lessons, and steps",
+    "Price it and pick where to sell it (Gumroad, Payhip, social media)"
+  ]}
+];
+
+const SYSTEM_FLOW = [
+  ["1","Foundations","Defines who you help, and why."],
+  ["2","Finding & Landing Clients","Fills the top of the funnel."],
+  ["3","Social Media Strategy","Builds trust before the sell."],
+  ["4","Paid Advertising","Adds paid reach on top of organic."],
+  ["5A","Building the Offer","Packages what you're actually selling."],
+  ["5B","Executing the Launch","Converts attention into sales."],
+  ["6","AI-Powered Marketing","Speeds up every step above."],
+  ["7","Offer Psychology","Sharpens how it's all framed."],
+  ["8","Digital Products","Turns the system into a 2nd income stream."]
+];
+
+const KEY = "cas_tracker_modules_v1";
+const NOTES_KEY = "cas_tracker_notes_v1";
+let state = {}, notes = {}, openNotes = {};
+try { const raw = localStorage.getItem(KEY); state = raw ? JSON.parse(raw) : {}; } catch(e) { state = {}; }
+try { const rawNotes = localStorage.getItem(NOTES_KEY); notes = rawNotes ? JSON.parse(rawNotes) : {}; } catch(e) { notes = {}; }
+
+let activeModule = 0;
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch(e) {} }
+function saveNotes(){ try { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); } catch(e) {} }
+function itemKey(m,i){ return m+"_"+i; }
+
+function totals(){
+  let done=0, total=0;
+  MODULES.forEach((mod,m)=>mod.items.forEach((it,i)=>{ total++; if(state[itemKey(m,i)]) done++; }));
+  return {done, total};
+}
+function moduleTotals(m){
+  const mod = MODULES[m]; let done=0;
+  mod.items.forEach((it,i)=>{ if(state[itemKey(m,i)]) done++; });
+  return {done, total: mod.items.length};
+}
+
+function renderTabs(){
+  const navEl = document.getElementById('tabs');
+  navEl.innerHTML = '';
+  MODULES.forEach((mod,m)=>{
+    const t = moduleTotals(m);
+    const btn = document.createElement('div');
+    btn.className = 'tab' + (m===activeModule ? ' active' : '');
+    const dotClass = t.done===0 ? 'empty' : '';
+    btn.innerHTML = '<span class="dot ' + dotClass + '"></span>' + mod.num + '. ' + mod.title;
+    btn.onclick = () => { activeModule = m; render(); document.getElementById('checklist').scrollIntoView({behavior:'smooth'}); };
+    navEl.appendChild(btn);
+  });
+}
+
+function renderSystemView(){
+  const box = document.createElement('div');
+  box.className = 'system-view';
+  SYSTEM_FLOW.forEach(([num,name,sub])=>{
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = '<div class="badge">' + num + '</div><div><div class="name">' + name + '</div><div class="sub">' + sub + '</div></div>';
+    box.appendChild(row);
+  });
+  return box;
+}
+
+function renderModule(){
+  const wrap = document.getElementById('phaseContent');
+  const mod = MODULES[activeModule];
+  wrap.innerHTML = '';
+
+  if(activeModule === 0){
+    const intro = document.createElement('div');
+    intro.style.cssText = 'color:var(--sub); font-size:13.5px; font-style:italic; margin:2px 2px 16px; line-height:1.5;';
+    intro.textContent = "Work through each module in order. Check off every item before moving to the next \u2014 the sequence is the system.";
+    wrap.appendChild(intro);
+  }
+
+  const head = document.createElement('div');
+  head.className = 'phase-head';
+  head.innerHTML = '<span class="num">' + mod.num + '</span><h3>' + mod.title + '</h3>';
+  wrap.appendChild(head);
+
+  mod.items.forEach((label,i)=>{
+    const k = itemKey(activeModule,i);
+    const hasNote = !!(notes[k] && notes[k].trim());
+    const isOpen = !!openNotes[k] || hasNote;
+
+    const item = document.createElement('div');
+    item.className = 'item' + (state[k] ? ' done' : '');
+
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML =
+      '<input type="checkbox" ' + (state[k] ? 'checked' : '') + '>' +
+      '<div class="txt"><div class="label">' + label + '</div></div>';
+    const cb = row.querySelector('input');
+    const toggleDone = () => { state[k] = !state[k]; save(); render(); };
+    cb.onclick = (e) => { e.stopPropagation(); toggleDone(); };
+    row.onclick = toggleDone;
+    item.appendChild(row);
+
+    const noteToggle = document.createElement('button');
+    noteToggle.className = 'note-toggle';
+    noteToggle.textContent = hasNote ? '\u270e Edit note' : (isOpen ? '\u2212 Hide note' : '+ Add note');
+    noteToggle.onclick = (e) => { e.stopPropagation(); openNotes[k] = !openNotes[k]; renderModule(); };
+    item.appendChild(noteToggle);
+
+    if(isOpen){
+      const noteBox = document.createElement('div');
+      noteBox.className = 'note-box';
+      const ta = document.createElement('textarea');
+      ta.placeholder = 'Jot a note for this step\u2026';
+      ta.value = notes[k] || '';
+      ta.onclick = (e) => e.stopPropagation();
+      ta.oninput = () => { notes[k] = ta.value; saveNotes(); };
+      noteBox.appendChild(ta);
+      item.appendChild(noteBox);
+    }
+
+    wrap.appendChild(item);
+  });
+
+  if(activeModule === MODULES.length-1){
+    wrap.appendChild(renderSystemView());
+    const loop = document.createElement('div');
+    loop.className = 'loop-note';
+    loop.textContent = "Assessment isn't a quiz \u2014 it's implementation. Every box checked here is a step actually taken. \u21BA Reinvest & Scale \u2014 the cycle repeats. Run it again, better each time.";
+    wrap.appendChild(loop);
+  }
+
+  const foot = document.createElement('div');
+  foot.className = 'footer-nav';
+  const prev = document.createElement('button');
+  prev.className = 'navbtn'; prev.textContent = '\u2190 Previous';
+  prev.disabled = activeModule===0;
+  prev.onclick = () => { activeModule--; render(); document.getElementById('checklist').scrollIntoView({behavior:'smooth'}); };
+  const next = document.createElement('button');
+  next.className = 'navbtn primary'; next.textContent = 'Next \u2192';
+  next.disabled = activeModule===MODULES.length-1;
+  next.onclick = () => { activeModule++; render(); document.getElementById('checklist').scrollIntoView({behavior:'smooth'}); };
+  foot.appendChild(prev); foot.appendChild(next);
+  wrap.appendChild(foot);
+}
+
+function renderOverall(){
+  const t = totals();
+  const pct = t.total ? Math.round((t.done/t.total)*100) : 0;
+  document.getElementById('overallFill').style.width = pct + '%';
+  document.getElementById('overallLabel').textContent = t.done + ' of ' + t.total + ' steps complete';
+}
+
+function render(){ renderTabs(); renderModule(); renderOverall(); }
+
+document.getElementById('resetBtn').onclick = () => {
+  if(confirm('Reset all progress? This can\'t be undone.')){ state = {}; save(); render(); }
+};
+
+render();
+</script>
+</body>
+</html>
